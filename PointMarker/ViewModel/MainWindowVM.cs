@@ -1875,8 +1875,15 @@ namespace PointMarker.ViewModel
                                     {
                                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                                     });
-                        string FileName = Path.Combine(FileTitle + "_point_" + Param3.ToString("0.0000") + "_" + Param4.ToString("0") + "_" + Param5.ToString("0") + ".json");
+
+                        string PathResult = Path.Combine(Directory.GetCurrentDirectory(), "Result");
+                        string FileName = Path.Combine(PathResult, FileTitle + "_point_" + Param3.ToString("0.0000") + "_" + Param4.ToString("0") + "_" + Param5.ToString("0") + ".json");
+                        if (!Directory.Exists(PathResult))
+                        {
+                            Directory.CreateDirectory(PathResult);
+                        }
                         System.IO.File.WriteAllText(FileName, json);
+
                     }
                     }
                
@@ -1895,9 +1902,14 @@ namespace PointMarker.ViewModel
                                     {
                                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                                     });
-                        string PathResult =Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName((Path.GetDirectoryName(Directory.GetCurrentDirectory()))))), "Result");
+                        string PathResult = Path.Combine(Directory.GetCurrentDirectory(), "Result");
                         string FileName = Path.Combine(PathResult, FileTitle + ".json");
+                        if (!Directory.Exists(PathResult))
+                        {
+                            Directory.CreateDirectory(PathResult);
+                        }
                         System.IO.File.WriteAllText(FileName, json);
+
                     }
                 
             }
