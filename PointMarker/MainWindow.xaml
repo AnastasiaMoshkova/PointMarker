@@ -1,0 +1,322 @@
+﻿<Window x:Class="PointMarker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:PointMarker.ViewModel"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        Title="Исследование болезни Паркинсона"
+        Height="500" Width="1300" MinWidth="700" MinHeight="350">
+    <TabControl>
+        <TabItem Header="Обработка данных">
+            <Grid viewModel:SizeObserver.Observe="True"
+                viewModel:SizeObserver.ObservedWidth="{Binding NewSizeW, Mode=OneWayToSource}"
+                viewModel:SizeObserver.ObservedHeight="{Binding NewSizeH, Mode=OneWayToSource}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SizeChanged">
+                        <i:InvokeCommandAction Command="{Binding SizeChangedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="89*" Name="LeftColumnDefinition"></ColumnDefinition>
+                    <ColumnDefinition Width="13*"/>
+                    <ColumnDefinition Width="31*"/>
+                    <ColumnDefinition Width="52*"/>
+                    <ColumnDefinition Width="740*"></ColumnDefinition>
+                    <ColumnDefinition Width="369*" Name="RightColumnDefinition"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.55*"></RowDefinition>
+                    <RowDefinition Height="0.45*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+
+                <GroupBox Grid.Row="1" Grid.Column="0" Header="Действия" BorderBrush="Gray" Padding="5,0" Grid.ColumnSpan="4">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+                        <Button Grid.Column="0" Grid.Row="0" Content="Выбрать файл" Command="{Binding OpenFileDialogCommand}"/>
+                        <Button Grid.Column="0" Grid.Row="2" Content="Разметить данные" Command="{Binding TestCommand}"/>
+                        <Button Grid.Column="0" Grid.Row="6" Content="Сохранить в БД" Command="{Binding SaveCommand}"/>
+                        <Button Grid.Column="0" Grid.Row="4" Content="Рассичтать параметры" Command="{Binding CalculateCommand}"/>
+                        <Button Grid.Column="0" Grid.Row="10" Content="Сформировать отчет"></Button>
+                        <ProgressBar Grid.Column="0" Grid.Row="8" Height="20" Minimum="0" Maximum="100" Name="pbStatus" Value="{Binding CurrentProgress, Mode=OneWay}"/>
+                        <!--IsIndeterminate="{Binding Status}" Click="HelloWorldButton_Click">Hello, World!-->
+                        <Button Grid.Column="0" Grid.Row="10" Command="{Binding Command}" Content="{Binding ButtonLabel}" Visibility="Hidden"></Button>
+                    </Grid>
+                </GroupBox>
+
+                <!--<Viewbox Grid.Row="0" Grid.Column="0">
+            <TextBlock Text="jfksdjfkljfgkljhfgkj" />
+        </Viewbox>-->
+                <ScrollViewer Grid.Column="3"  Grid.Row="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" Grid.ColumnSpan="3" Margin="52,0,369,205" Grid.RowSpan="2">
+                    <ItemsControl Grid.Column="1"  Grid.Row="0" Name="IS" ItemsSource="{Binding Data}" Height="{Binding Height}" Width="{Binding Width}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+
+                                <Canvas  x:Name="ImageCanvas" IsItemsHost="True" 
+                                 Height="{Binding ElementName=IS, Path=ActualHeight}"
+                        Width="{Binding ElementName=IS, Path=ActualWidth}">
+                                    <Canvas.LayoutTransform>
+                                        <ScaleTransform ScaleY="-1" />
+                                    </Canvas.LayoutTransform>
+                                    <Canvas.Background>
+                                        <ImageBrush x:Name="ImageImageBrush"  Stretch="Uniform"/>
+                                    </Canvas.Background>
+
+                                    <i:Interaction.Behaviors>
+                                        <viewModel:MouseBehaviour MouseX="{Binding MouseX, Mode=OneWayToSource}"
+                                              MouseY="{Binding MouseY, Mode=OneWayToSource}"
+                                                          Whell="{Binding Whell, Mode=OneWayToSource}"/>
+                                    </i:Interaction.Behaviors>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseLeftButtonDown" >
+                                            <i:InvokeCommandAction Command="{Binding MouseLeftDownCommand}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeftButtonUp" >
+                                            <i:InvokeCommandAction Command="{Binding MouseLeftUpCommand}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseRightButtonDown" >
+                                            <i:InvokeCommandAction Command="{Binding MouseRightClickCommand}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeave">
+                                            <i:InvokeCommandAction Command="{Binding MouseLeaveCommand}"/>
+                                        </i:EventTrigger>
+
+                                        <i:EventTrigger EventName="MouseWheel">
+                                            <i:InvokeCommandAction Command="{Binding MouseWheelCommand}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+
+                                </Canvas>
+
+                            </ItemsPanelTemplate>
+
+                        </ItemsControl.ItemsPanel>
+                        <!--<ItemsControl.ItemTemplate>-->
+                        <ItemsControl.Resources>
+                            <DataTemplate DataType="{x:Type viewModel:Line}">
+                                <!--<Ellipse Width="2" Height="2" Stroke="Red" StrokeThickness="2">
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform X="{Binding X}" Y="{Binding Y}" />
+                        </Ellipse.RenderTransform>
+                    </Ellipse>-->
+                                <Line X1="{Binding From.X}" X2="{Binding To.X}" Y1="{Binding From.Y}" Y2="{Binding To.Y}" Stroke="Black" StrokeThickness="2"/>
+                            </DataTemplate>
+                            <DataTemplate  DataType="{x:Type viewModel:CheckPoint}">
+                                <Ellipse Width="8" Height="8" Stroke="{Binding Brush}" StrokeThickness="8">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform X="{Binding X}" Y="{Binding Y}" />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </DataTemplate>
+                        </ItemsControl.Resources>
+                        <!--</ItemsControl.ItemTemplate> -->
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!--<StackPanel Grid.Column="1"  Grid.Row="1" DockPanel.Dock="Left" Orientation="Horizontal">
+            <TextBlock Text="{Binding MouseX, StringFormat='MouseX={0}   '}" Background="LightBlue"  />
+            <TextBlock Text="{Binding MouseY, StringFormat='MouseY\=\{0\}    '}" Background="LightBlue" />
+
+            <TextBlock Text="{Binding Width, StringFormat='W={0}'    }" Background="LightBlue" />
+            <TextBlock Text="{Binding PrevioussWidth, StringFormat='PPW={0}   '}" Background="LightBlue"/>
+
+            <TextBlock Text="{Binding NewSizeH, StringFormat='NH={0}'    }" Background="LightBlue" />
+            <TextBlock Text="{Binding NewSizeW, StringFormat='NW={0}   '}" Background="LightBlue"/>
+
+            <TextBlock Text="{Binding PreviousSizeH, StringFormat='PH={0}'    }" Background="LightBlue" />
+            <TextBlock Text="{Binding PreviousSizeW, StringFormat='PW={0}   '}" Background="LightBlue"/>
+
+        </StackPanel>-->
+                <GroupBox Grid.Row="0" Grid.Column="0" Header="Параметры" BorderBrush="Gray" Padding="5,0" Grid.ColumnSpan="4" Margin="0,0,0,205" Grid.RowSpan="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0"  Grid.Row="0">
+                            <Label FontWeight="Bold">Тип точки</Label>
+                            <CheckBox Name="MAX" Content="MAX" Command="{Binding CheckCommand, Mode=TwoWay}" IsChecked="{Binding Path=MAX, Mode=TwoWay}" Background="Red"></CheckBox>
+                            <CheckBox Name="MIN" Content="MIN" IsChecked="{Binding Path=MIN, Mode=TwoWay }" Background="Blue"></CheckBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="0"  Grid.Row="1">
+                            <Label FontWeight="Bold">Рука</Label>
+                            <CheckBox Name="LeftHand" Content="Левая рука" IsChecked="{Binding Path=LeftHand, Mode=TwoWay}" IsEnabled="{Binding Path=ModeHand}"></CheckBox>
+                            <CheckBox Name="RightHand" Content="Правая рука" IsChecked="{Binding Path=RightHand, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}"></CheckBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="0"  Grid.Row="2">
+                            <Label FontWeight="Bold">Упражнение</Label>
+                            <CheckBox Name="Task1" Content="FT" IsChecked="{Binding Path=Task1, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}"  ></CheckBox>
+                            <CheckBox Name="Task2" Content="OC" IsChecked="{Binding Path=Task2, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}" ></CheckBox>
+                            <CheckBox Name="Task3" Content="PS" IsChecked="{Binding Path=Task3, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}" ></CheckBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"  Grid.Row="2" Visibility="Hidden">
+                            <Label FontWeight="Bold">Part type</Label>
+                            <CheckBox Name="Time1" Content="T1" IsChecked="{Binding Path=Time1, Mode=TwoWay}" IsEnabled="{Binding Path=ModeHand}" ></CheckBox>
+                            <CheckBox Name="Time2" Content="T2" IsChecked="{Binding Path=Time2, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}"></CheckBox>
+                            <CheckBox Name="Time3" Content="T3" IsChecked="{Binding Path=Time3, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}"></CheckBox>
+                            <CheckBox Name="Time4" Content="T4" IsChecked="{Binding Path=Time4, Mode=TwoWay }" IsEnabled="{Binding Path=ModeHand}"></CheckBox>
+                            <CheckBox Name="TimeMean" Content="TMean" IsChecked="{Binding Path=TimeMean, Mode=TwoWay }"></CheckBox>
+                        </StackPanel>
+
+
+                        <StackPanel Grid.Column="1"  Grid.Row="1" Visibility="Hidden">
+                            <Label FontWeight="Bold">Both Hand</Label>
+                            <CheckBox Content="Both hand" IsChecked="{Binding Path=BothHand, Mode=TwoWay}" IsEnabled="{Binding Path=ModeHand}"></CheckBox>
+
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Grid.Row="1" Grid.Column="3" Header="Параметры" BorderBrush="Gray" Padding="5,0" Grid.ColumnSpan="3" Margin="52,0,369,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="50"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Параметры разметки" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Grid.Row="0" Text="Параметры сигнала" HorizontalAlignment="Center"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="level" HorizontalAlignment="Center" Visibility="Hidden"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Param1}" Visibility="Hidden"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="width garf" HorizontalAlignment="Center" Visibility="Hidden"/>
+                        <TextBox Grid.Row="2" Grid.Column="1"  Text="{Binding Path=Param2}" Visibility="Hidden"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Frac" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1"  Text="{Binding Path=Param3}"  Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Order min" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Path=Param4}" Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Order max" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="5" Grid.Column="1"  Text="{Binding Path=Param5}"  Width="50" HorizontalAlignment="left"/>
+
+
+                        <TextBlock Grid.Row="1" Grid.Column="3" Text="NumA" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc1}" VerticalAlignment="Top" Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="3" Text="AvgVclose" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc2}" Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="3" Text="AvgVopen" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc3}"  Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="3" Text="AvgFrq" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="4" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc4}"  Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="3" Text="AvgAopen" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="5" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc5}"  Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="6" Grid.Column="3" Text="AvgAopen" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="6" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc61}"  Width="50" HorizontalAlignment="left"/>
+
+                        <TextBlock Grid.Row="7" Grid.Column="3" Text="Length" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="7" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc62}"  Width="50" HorizontalAlignment="left"/>
+                        <!--<TextBlock Grid.Row="6" Grid.Column="3" Text="Max/Min amplitude" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="6" Grid.Column="4" Text="/" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="6" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc61}" Width="50" HorizontalAlignment="Left" />
+                        <TextBox Grid.Row="6" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc62}" Width="50"  />
+
+                        <TextBlock Grid.Row="7" Grid.Column="3" Text="max/min Speed Pronation" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="7" Grid.Column="4" Text="/" />
+                        <TextBox Grid.Row="7" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc71}" Width="50" HorizontalAlignment="Left"/>
+                        <TextBox Grid.Row="7" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc72}" Width="50" />
+
+                        <TextBlock Grid.Row="8" Grid.Column="3" Text="max/min Speed Supination" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="4" Text="/" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="8" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc81}" Width="50" HorizontalAlignment="Left"/>
+                        <TextBox Grid.Row="8" Grid.Column="4"  IsReadOnly="True" Text="{Binding Path=Calc82}" Width="50" HorizontalAlignment="Right"/>-->
+
+                        <!--<TextBlock Grid.Row="7" Grid.Column="0" Text="Название файла:" HorizontalAlignment="Center"/>
+                <TextBox Grid.Row="7" Grid.Column="1"  IsReadOnly="True" Text="{Binding Path= FileName}" HorizontalAlignment="Right"/>-->
+
+                    </Grid>
+
+                </GroupBox>
+                <GroupBox Grid.Row="0" Grid.Column="4" Header="Двигательные единицы" BorderBrush="Gray" Padding="5,0" IsEnabled="{Binding Path=ModeFace2D}" Grid.ColumnSpan="2" Margin="739,0,0,205" Grid.RowSpan="2">
+                    <Grid>
+                        <ListBox Grid.Row="0" Grid.Column="3" ItemsSource="{Binding Groups2D}" SelectionMode="Single" SelectedItem="{Binding SelectedGroup, Mode=TwoWay}">
+                            <ListBox.ItemTemplate >
+                                <DataTemplate >
+                                    <TextBlock Text="{Binding Group}" Background="{Binding Brush}" Width= "{Binding ElementName=RightColumnDefinition, Path=ActualWidth}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                </GroupBox>
+
+                <GroupBox Grid.Row="1" Grid.Column="4" Header="Задача" BorderBrush="Gray" Padding="5,0" Grid.ColumnSpan="2" Margin="739,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding GroupsTask}" SelectionMode="Single" SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
+                                <ListBox.ItemTemplate >
+                                    <DataTemplate >
+                                        <TextBlock Text="{Binding GroupTask}" Background="{Binding BrushTask}" Width= "{Binding ElementName=RightColumnDefinition, Path=ActualWidth}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                        <Grid Grid.Row="1" Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="250"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--<TextBlock Grid.Row="1" Grid.Column="0" Text="FileName" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=FileSaveName}"/>-->
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>
+
