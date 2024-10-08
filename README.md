@@ -7,6 +7,19 @@
 
 ### Для работы с приожением: 
  - При запуске в Relealse в PointMarker.exe.config заменить путь к устаноленному python и DLL (в config задано для python310)
+ - Результаты сохраняются в папке Result в одной директории с .exe
+ - Для работы .py скриптов нужно убедиться, что установлены следующие python модули в той версии питона, которая используется в приложении
+
+```
+import csv
+import json
+import math
+import numpy as np
+import statistics
+from statsmodels.nonparametric.smoothers_lowess import lowess
+from scipy import loadtxt, optimize
+from scipy.signal import argrelmax, argrelmin
+```
 
 ### Для сборки:
 Установить NuGet пакеты:
@@ -19,6 +32,5 @@
 - Windows 8
 - Microsoft Visual Studio Community 2022 (64-разрядная версия) - Версия 17.7.3
   
-
 
 
